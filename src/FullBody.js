@@ -29,7 +29,7 @@ class FullBody extends Component {
   setTC(tcEvent) {
     console.log(tcEvent.target.value);
       this.setState({
-        taxCredits : tcEvent.target.value
+        TC : tcEvent.target.value
       });
   }
 
