@@ -117,12 +117,20 @@ class FullBody extends Component {
     return this.round(totalNet);
   }
 
+  calculatePercentageDifference(original, newVal){
+    if(original <= 0 || !newVal){
+      return 0;
+    }
+    return this.round(((newVal - original)/ original)*100);
+  }
+
   render() {
     const govCalc = this.govCalc();
     const totalPay = this.totalPay(govCalc);
     const totalGross = this.totalGross(totalPay);
     const PAYE = this.paye(totalGross);
     const calcNet = this.calculateNet(totalGross, PAYE);
+    const janDiff = this.calculatePercentageDifference(this.state.janNet, calcNet);
 
     return (
         <div className="container-fluid">
@@ -144,6 +152,7 @@ class FullBody extends Component {
                 <p>Total Gross : <strong>€{totalGross}</strong></p>
                 <p>PAYE : <strong>€{PAYE}</strong></p>
                 <p>New Net (Ensure to add a USC Figure above) : <strong>€{calcNet}</strong></p>
+                <p>% difference from Jan : <strong>{janDiff}%</strong></p>
              </div>
              <div className="col-md-6">
                 <p>Formula for Total Pay = ((Jan Net + Feb Net)/9 weeks)(52 weeks/12 months) - Gov Subsidy</p>
