@@ -8,7 +8,8 @@ class FullBody extends Component {
         TC : 275,
         USC : 0,
         PC : 0,
-        GOV : 1516.67
+        GOV : 1516.67,
+        WEEKS_IN_YEAR : 52
       }
     }
 
@@ -54,38 +55,82 @@ class FullBody extends Component {
       });
   }
 
-  calculateNet(){
-    const janNet = Number(this.state.janNet);
-    if(!janNet){
+  round(num){
+    return Math.round(Number(num) * 100) / 100
+  }
+
+  govCalc(){
+    let janNet = Number(this.state.janNet);
+    let febNet = Number(this.state.febNet);
+    if(!janNet && !febNet){
         return 0;
     }
     console.log("Jan Net " + janNet);
-    let febNet = Number(this.state.febNet);
     if(!febNet){
       febNet = janNet;
+    }
+    if(!janNet) {
+      janNet = febNet;
     }
     console.log("Feb Net " + febNet);
     const janNetAndFebNet = janNet + febNet;
     console.log("Jan Net and Feb Net " + janNetAndFebNet);
-    const totalPay = ((Number(janNetAndFebNet)/9)*(52/12)) - Number(this.state.GOV);
+    const govCalc = ((Number(janNetAndFebNet)/9)*(Number(this.state.WEEKS_IN_YEAR)/12));
+    console.log("Gov Calc " + govCalc);
+    return this.round(govCalc);
+  }
+
+  totalPay(govCalc){
+    if(govCalc <= 0){
+        return 0;
+    }
+    const totalPay = govCalc - Number(this.state.GOV);
     console.log("Total Pay " + totalPay);
+    return this.round(totalPay);
+  }
+
+  totalGross(totalPay){
+    if(totalPay <= 0){
+      return 0;
+    }
     const totalGross = totalPay - Number(this.state.PC);
     console.log("Total Gross " + totalGross);
+    return this.round(totalGross);
+  }
+
+  paye(totalGross){
+    if(totalGross <= 0) {
+      return 0;
+    }
     const PAYE = Number(Number(totalGross)*0.2) - Number(this.state.TC);
     console.log("PAYE " + PAYE);
+    return this.round(PAYE);
+  }
+
+
+  calculateNet(totalGross, PAYE){
+    if(totalGross <= 0){
+      return 0;
+    }
     const totalNet = totalGross - PAYE - Number(this.state.USC) + Number(this.state.GOV);
     console.log("Total Net " + totalNet);
-    return totalNet;
+    return this.round(totalNet);
   }
 
   render() {
-    const calcNet = this.calculateNet();
+    const govCalc = this.govCalc();
+    const totalPay = this.totalPay(govCalc);
+    const totalGross = this.totalGross(totalPay);
+    const PAYE = this.paye(totalGross);
+    const calcNet = this.calculateNet(totalGross, PAYE);
 
     return (
         <div className="container-fluid">
            <div className="col-md-12">
              <div className="col-md-6">
-                <p>calculator</p>
+                <h2>DISCLAIMER</h2>
+                <p>None of the data entered is stored and no external calls are made by this application</p>
+                <h2>Calculator</h2>
                 <p>Jan Net : <input value={this.state.financialGoal} type="number" onChange={this.setJanNet.bind(this)}/></p>
                 <p>Feb Net : <input value={this.state.financialGoal} type="number" onChange={this.setFebNet.bind(this)}/></p>
                 <p>Tax Credits Per Month : <input value={this.state.financialGoal} type="number" onChange={this.setTC.bind(this)}/></p>
@@ -94,7 +139,11 @@ class FullBody extends Component {
                 <p>USC : <input value={this.state.financialGoal} type="number" onChange={this.setUSC.bind(this)}/></p>
                 <br/>
                 <br/>
-                <p>Net Net : <strong>€{calcNet}</strong></p>
+                <p>Gov Calc : <strong>€{govCalc}</strong></p>
+                <p>Total Pay by Company : <strong>€{totalPay}</strong></p>
+                <p>Total Gross : <strong>€{totalGross}</strong></p>
+                <p>PAYE : <strong>€{PAYE}</strong></p>
+                <p>New Net (Ensure to add a USC Figure above) : <strong>€{calcNet}</strong></p>
              </div>
              <div className="col-md-6">
                 <p>Formula for Total Pay = ((Jan Net + Feb Net)/9 weeks)(52 weeks/12 months) - Gov Subsidy</p>
