@@ -21,5 +21,6 @@ python3 -m http.server
 ```
 npm run deploy
 ```
+Note : sometimes there are issues with this and you may need to build manually first with the homepage set to "." in the package.json
 
 URL for deployed App : https://1carew1.github.io/covid-pay-calculator
